@@ -2,118 +2,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Portal</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f2f5;
+      margin: 0;
+      padding: 0;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      height: 100vh;
-      padding-top: 50px;
+      align-items: center;
+      min-height: 100vh;
+      background: #f9f9f9;
     }
 
     .container {
-      background-color: white;
-      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      background: white;
+      padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 350px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    h2 {
       text-align: center;
+      margin-bottom: 20px;
     }
 
     input {
-      padding: 10px;
-      width: 80%;
-      border-radius: 6px;
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
       border: 1px solid #ccc;
-      margin-bottom: 10px;
+      border-radius: 8px;
       font-size: 16px;
     }
 
     button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      background-color: #4CAF50;
+      width: 100%;
+      padding: 12px;
+      background: #4CAF50;
       color: white;
+      border: none;
+      border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
     }
 
     button:hover {
-      background-color: #45a049;
+      background: #45a049;
     }
 
     #result {
       margin-top: 20px;
-      text-align: left;
+      padding: 15px;
+      background: #f1f1f1;
+      border-radius: 10px;
+      font-size: 15px;
+      word-wrap: break-word;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
+    .row {
+      margin-bottom: 10px;
     }
 
-    th, td {
-      text-align: left;
-      padding: 8px;
-      border-bottom: 1px solid #ddd;
-    }
-
-    th {
-      background-color: #f7f7f7;
-      width: 40%;
-      text-transform: uppercase; /* Convert column names to all caps */
+    .label {
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Student Login</h2>
-    <input type="text" id="roll_no" placeholder="Enter Roll Number" />
-    <button id="loginBtn">Login</button>
+    <h2>Student Portal</h2>
+    <input type="text" placeholder="Enter Roll Number" id="roll">
+    <button onclick="getResult()">Get Result</button>
 
     <div id="result"></div>
   </div>
 
   <script>
-    const apiBaseURL = 'https://sheetdb.io/api/v1/too9n4qnptuvp';
-
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-      const rollNo = document.getElementById('roll_no').value.trim();
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = ''; // clear previous result
-
-      if (!rollNo) {
-        resultDiv.innerText = 'Please enter a roll number.';
-        return;
-      }
+    async function getResult() {
+      const roll = document.getElementById("roll").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "Fetching...";
 
       try {
-        const response = await fetch(`${apiBaseURL}?roll_no=${rollNo}`);
-        const data = await response.json();
+        const res = await fetch(`https://sheetdb.io/api/v1/too9n4qnptuvp/search?ROLL=${roll}`);
+        const data = await res.json();
 
-        const student = data.find(s => s.roll_no && s.roll_no.trim() === rollNo);
-
-        if (student) {
-          // Create vertical table with column names in all caps
-          let html = '<table>';
-          for (const key in student) {
-            html += `<tr><th>${key.toUpperCase()}</th><td>${student[key] || 'N/A'}</td></tr>`;
-          }
-          html += '</table>';
-          resultDiv.innerHTML = html;
-        } else {
-          resultDiv.innerHTML = `No student found with roll number: ${rollNo}`;
+        if (data.length === 0) {
+          resultDiv.innerHTML = "<span style='color:red;'>No record found for this Roll Number.</span>";
+          return;
         }
+
+        const student = data[0];
+        let output = "";
+        for (let key in student) {
+          output += `<div class="row"><span class="label">${key.toUpperCase()}:</span> ${student[key]}</div>`;
+        }
+
+        resultDiv.innerHTML = output;
       } catch (error) {
-        console.error(error);
-        resultDiv.innerText = 'Error fetching data.';
+        resultDiv.innerHTML = "<span style='color:red;'>Error fetching data</span>";
       }
-    });
+    }
   </script>
 </body>
 </html>
