@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Portal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100vh;
+      padding-top: 50px;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 350px;
+      text-align: center;
+    }
+
+    input {
+      padding: 10px;
+      width: 80%;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #result {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f7f7f7;
+      width: 40%;
+      text-transform: uppercase; /* Convert column names to all caps */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Student Login</h2>
+    <input type="text" id="roll_no" placeholder="Enter Roll Number" />
+    <button id="loginBtn">Login</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const apiBaseURL = 'https://sheetdb.io/api/v1/too9n4qnptuvp';
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const rollNo = document.getElementById('roll_no').value.trim();
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = ''; // clear previous result
+
+      if (!rollNo) {
+        resultDiv.innerText = 'Please enter a roll number.';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${apiBaseURL}?roll_no=${rollNo}`);
+        const data = await response.json();
+
+        const student = data.find(s => s.roll_no && s.roll_no.trim() === rollNo);
+
+        if (student) {
+          // Create vertical table with column names in all caps
+          let html = '<table>';
+          for (const key in student) {
+            html += `<tr><th>${key.toUpperCase()}</th><td>${student[key] || 'N/A'}</td></tr>`;
+          }
+          html += '</table>';
+          resultDiv.innerHTML = html;
+        } else {
+          resultDiv.innerHTML = `No student found with roll number: ${rollNo}`;
+        }
+      } catch (error) {
+        console.error(error);
+        resultDiv.innerText = 'Error fetching data.';
+      }
+    });
+  </script>
+</body>
+</html>
